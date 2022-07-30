@@ -1,6 +1,7 @@
 package BinarySearchTree;
 
 import java.util.ArrayList;
+import java.util.Stack;
 
 public class BinarySearchTree {
 
@@ -8,6 +9,7 @@ public class BinarySearchTree {
         int data;
         Node left;
         Node right;
+        int freq=0;
         Node(int data){
             this.data=data;
             this.left=this.right=null;
@@ -147,6 +149,163 @@ public class BinarySearchTree {
 
    }
 
+    public static Node add(Node node,int data){
+       if(node==null){
+           Node newNode=new Node(data);
+           return newNode;
+       }
+       if(node.data>data){
+           Node lnode=add(node.left,data);
+           node.left=lnode;
+           return node;
+       }
+       else if(node.data<data){
+           Node rnode=add(node.right,data);
+           node.right=rnode;
+           return node;
+       }
+       else{
+           if(node.data==data){
+               node.freq++;
+           }
+           return node;
+       }
+
+    }
+
+
+    public static Node remove(Node node,int data){
+       if(node.data==data && node.left==null && node.right==null){
+           return null;
+       }
+       else if(node.data==data &&(node.left==null || node.right==null)){
+           if(node.left!=null){
+               return node.left;
+           }
+           else {
+               return node.right;
+           }
+       }
+       else if(node.data == data){
+           int ans=max(node.left);
+           node.data=ans;
+           Node enode=remove(node.left,ans);
+           node.left=enode;
+           return node;
+       }
+        if (node.data > data) {
+            Node lnode=remove(node.left,data);
+            node.left=lnode;
+        }
+        else{
+            Node rnode=remove(node.right,data);
+            node.right=rnode;
+        }
+       return node;
+    }
+
+    public static void tsp2(Node node, ArrayList<Integer> list){
+       if(node==null){
+           return;
+       }
+       tsp2(node.left,list);
+       list.add(node.data);
+       tsp2(node.right,list);
+
+    }
+
+    public static class IPair{
+       int state;
+       Node node;
+       IPair(Node node){
+           this.node=node;
+       }
+    }
+
+    public static void tsp3(Node node,int target){
+       Stack<IPair> ls=new Stack<>();
+       IPair leftrootPair=new IPair(node);
+       ls.push(leftrootPair);
+       Stack<IPair> rs=new Stack<>();
+       IPair rightrootPair=new IPair(node);
+       rs.push(rightrootPair);
+       Node left=getInorder(ls);
+       Node right=getReverseInorder(rs);
+       while(left.data<right.data){
+           if(left.data+right.data>target){
+               right=getReverseInorder(rs);
+           }
+           else if(left.data+right.data<target){
+               left=getInorder(ls);
+           }
+           else{
+               System.out.println(left.data+" "+right.data);
+               left=getInorder(ls);
+               right=getReverseInorder(rs);
+           }
+       }
+    }
+
+    public static Node getInorder(Stack<IPair> stack){
+        while(stack.size()>0){
+            IPair peek=stack.peek();
+            if(peek.state==0){
+                if(peek.node.left!=null){
+                    IPair newPair=new IPair(peek.node.left);
+                    stack.push(newPair);
+                }
+              peek.state++;
+
+            }
+            else if(peek.state==1){
+                if(peek.node.right!=null){
+                    IPair newPair=new IPair(peek.node.right);
+                    stack.push(newPair);
+                }
+                peek.state++;
+                return peek.node;
+            }
+            else{
+                stack.pop();
+            }
+        }
+        return null;
+    }
+    public static Node getReverseInorder(Stack<IPair> stack){
+       while(stack.size()>0){
+           IPair peek=stack.peek();
+           if(peek.state==0){
+               if(peek.node.right!=null){
+                   IPair newPair=new IPair(peek.node.right);
+                   stack.push(newPair);
+               }
+               peek.state++;
+           }
+           else if(peek.state==1){
+               if(peek.node.left!=null){
+                   IPair newPair=new IPair(peek.node.left);
+                   stack.push(newPair);
+               }
+               peek.state++;
+               return peek.node;
+           }
+           else{
+               stack.pop();
+           }
+       }
+       return null;
+    }
+
+
+
+
+
+
+//   *************************************************************************
+
+
+
+
 
 
     public static void main(String[] args){
@@ -161,6 +320,23 @@ public class BinarySearchTree {
 ////        replaceSum(root);
 //        printInRange(root,87,87);
         tsp(root,root,99);
+        ArrayList<Integer> list=new ArrayList<>();
+        tsp2(root,list);
+        int i=0;
+        int j=list.size()-1;
+        while(i<j){
+            if(list.get(i)+list.get(j)==100){
+                System.out.println(list.get(i)+" "+list.get(j));
+                i++;
+                j--;
+            }
+            else if(list.get(i)+list.get(j)>100){
+                j--;
+            }
+            else{
+                i++;
+            }
+        }
 
     }
 }
